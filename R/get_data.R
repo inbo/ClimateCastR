@@ -1,5 +1,4 @@
 
-#' Title
 #Create helper function to clean the data for get_data_gbif, get_data_zip, and get_data_downloadkey
 data_clean<-function(gbif_data,
                      basis_of_record=NULL,
@@ -165,20 +164,46 @@ data_clean<-function(gbif_data,
 #' This function downloads species occurrence records from GBIF, filters them,
 #' and converts them into an sf data frame which can then be used for climate casting.
 #'
-#' @param taxon_key
-#' @param basis_of_record
-#' @param coord_unc
-#' @param identification_verification_status
+#' @param taxon_key A numeric value or vector specifying the GBIF taxonKey(s).
+#' @param basis_of_record Optional character indicating the basisOfRecord types to be included in the data.
+#' If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
+#' "MATERIAL_SAMPLE", "LITERATURE", "PRESERVED_SPECIMEN", "UNKNOWN", and "MACHINE_OBSERVATION".
+#' @param coord_unc Optional numeric indicating the maximal coordinate uncertainty (m) an
+#' observation can have to be included in the data.
+#' If NULL, the default, all occurrences will be kept regardless of their coordinate uncertainty.
+#' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
+#' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
+#' @param region_shape Optional character specifying a path to a shape file indicating the region from which occurrence records should be downloaded.
 #'
-#' @return
+#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#'
 #' @export
 #'
 #' @examples
-#' taxon_key <- c(2865504, 5274858, 527485800)
-#' taxon_key <- c(2865504)
-#' taxon_key<-4980984 #no occurrences in gbif
-#' taxon_key<-4377179 #genus
-#' zip_file <- "./<path to zip_file>/0001221-210914110416597.zip"
+#'  \dontrun{
+#' #provide GBIF taxon_key(s)
+#' taxon_key <- c(2865504, 5274858)
+#' get_gbif_data(taxon_key)
+#' get_gbif_data(taxon_key,
+#'               coord_unc = 100,
+#'               basis_of_record = "HUMAN_OBSERVATION",
+#'               identification_verification_status= c("Probable", "valid","confident","")
+#'               )
+#'
+#' #provide a taxon key and a path to a shapefile
+#' taxon_key<-2427091
+#' url <- "https://zenodo.org/records/3386224"
+#' zipfile <- tempfile(fileext = ".zip")
+#' utils::download.file(url, zipfile, mode = "wb")
+#' utils::unzip(zipfile, exdir = tempdir())
+#' shapefile_path<-file.path(tempdir(), "flanders.shp")
+#'
+#' get_gbif_data(taxon_key,
+#'              region_shape = shapefile_path
+#'              )
+#'}
+#'
+#' @author Soria Delva, Sander Devisscher
 
 get_gbif_data <- function(taxon_key,
                           basis_of_record,
