@@ -357,10 +357,11 @@ get_gbif_data <- function(taxon_key,
   gbif_data_clean <- gbif_data %>%
     data_clean(basis_of_record, coord_unc, identification_verification_status)
 
-  #If the coord_unc argument was (not) provided:
-  if(is.null(coord_unc)){
-    coord_unc <- max(gbif_data$coordinateUncertaintyInMeters, na.rm = TRUE)
-  }
+  #-------------------------------------------------
+  #      4. Save as an sf dataframe and return
+  #-------------------------------------------------
+  data_sf <- gbif_data_clean%>%
+    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
 
   #If the coord_unc argument was (not) provided:
   if(is.null(identification_verification_status)){
