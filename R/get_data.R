@@ -512,16 +512,142 @@ get_zip_data <- function(zip_file,
       !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
     )
 
-  assertthat::assert_that(nrow(data_cleaned)!=0,
-      msg=paste0("No useful data for ",
-             paste(taxon_key, collapse = ","),
-             paste(" left after filtering.",
-                   "Try omiting or changing the filter settings.")
-      )
+
+  zip_data_clean <- zip_data %>%
+    data_clean(basis_of_record, coord_unc, identification_verification_status)
+
+  #-------------------------------------------------
+  #      4. Save as an sf dataframe and return
+  #-------------------------------------------------
+  zip_data_sf <- zip_data_clean%>%
+    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
+
+  return(zip_data_sf)
+}
+
+
+
+
+#' Import species occurrence data from a previous GBIF download and prepare them for climate casting
+#'
+#' This function imports species occurrence data from a previous GBIF download, filters them,
+#' and converts them into an sf data frame which can then be used for climate casting.
+#'
+#' @param downloadkey Character specifying the download key of a previous GBIF download.
+#' @param basis_of_record Optional character indicating the basisOfRecord types to be included in the data.
+#' If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
+#' "MATERIAL_SAMPLE", "LITERATURE", "PRESERVED_SPECIMEN", "UNKNOWN", and "MACHINE_OBSERVATION".
+#' @param coord_unc Optional numeric indicating the maximal coordinate uncertainty (m) an
+#' observation can have to be included in the data.
+#' If NULL, the default, all occurrences will be kept regardless of their coordinate uncertainty.
+#' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
+#' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
+#'
+#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @export
+#'
+#' @author Soria Delva, Sander Devisscher
+#' @examples
+#' #Provide a downloadkey
+#' downloadkey<-"0001221-210914110416597"
+#' get_downloadkey_data(downloadkey,
+#'                      coord_unc= 1000,
+#'                      identification_verification_status= c("","valid"))
+#'
+
+get_downloadkey_data <- function(downloadkey,
+                                 basis_of_record = NULL,
+                                 coord_unc = NULL,
+                                 identification_verification_status= NULL
+) {
+
+  #-----------------------------------------
+  # 1. Test function arguments
+  #-----------------------------------------
+
+  # Test that downloadkey is provided
+  assertthat::assert_that(!is.null(downloadkey),
+                          msg = paste(
+                            "downloadkey is missing."
+                          )
+  )
+
+  # Test that downloadkey is of class character
+  assertthat::assert_that(is.character(downloadkey),
+                          msg = "downloadkey should be of class character."
+  )
+
+  # Test that basis_of_record (when provided) is of class character
+  if (!is.null(basis_of_record)) {
+    assertthat::assert_that(is.character(basis_of_record),
+                            msg = "basis_of_record should be of class character."
+    )
+  }
+
+  # Test that coord_unc (when provided) is of class numeric
+  if (!is.null(coord_unc)) {
+    assertthat::assert_that(is.numeric (coord_unc),
+                            msg = "coord_unc should be of class numeric."
+    )
+  }
+
+  # Test that identification_verification_status (when provided) is of class character
+  if (!is.null(identification_verification_status)) {
+    assertthat::assert_that(is.character(identification_verification_status),
+                            msg = "identification_verification_status should be of class character."
+    )
+  }
+
+
+  #-----------------------------------------
+  #           2. Download data
+  #-----------------------------------------
+
+  #Retrieve downloaded records
+  downloadkey_data <- rgbif::occ_download_get(downloadkey,overwrite = TRUE) %>%
+    rgbif::occ_download_import()
+
+  #Retrieve citation of downloaded dataset
+  print(rgbif::gbif_citation(rgbif::occ_download_meta(downloadkey))$download)
+
+
+  #Check that the zip file contains data
+  assertthat::assert_that(nrow(downloadkey_data)!=0,
+                          msg = paste("No data were found using the specified downloadkey.")
+  )
+
+
+
+  #-----------------------------------------
+  #         3  . Clean data
+  #-----------------------------------------
+
+  #We will remove data with default geospatial issues, that are not PRESENT, and that don't have coordinates
+  #This was done during the download of the get_data_gbif function but has to be specified separately here
+  issues_to_discard <- c(
+    "ZERO_COORDINATE",
+    "COORDINATE_OUT_OF_RANGE",
+    "COORDINATE_INVALID",
+    "COUNTRY_COORDINATE_MISMATCH"
+  )
+
+  downloadkey_data<- downloadkey_data %>%
+    dplyr::filter(
+      !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
+      .data$occurrenceStatus == "PRESENT",
+      !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
     )
 
+    downloadkey_data_clean <- downloadkey_data %>%
+    data_clean(basis_of_record, coord_unc, identification_verification_status)
 
-
-  data_sf <- data_cleaned %>%
+  #-------------------------------------------------
+  #      4. Save as an sf dataframe and return
+  #-------------------------------------------------
+  downloadkey_data_sf <- downloadkey_data_clean%>%
     sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
+
+  return(downloadkey_data_sf)
 }
+
+
