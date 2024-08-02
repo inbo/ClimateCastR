@@ -1,5 +1,6 @@
 
 #' Title
+#Create helper function to clean the data for get_data_gbif, get_data_zip, and get_data_downloadkey
 #'
 #' @param taxon_key
 #' @param basis_of_record
