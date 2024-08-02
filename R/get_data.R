@@ -206,9 +206,10 @@ data_clean<-function(gbif_data,
 #' @author Soria Delva, Sander Devisscher
 
 get_gbif_data <- function(taxon_key,
-                          basis_of_record,
-                          coord_unc,
-                          identification_verification_status
+                          basis_of_record = NULL,
+                          coord_unc = NULL,
+                          identification_verification_status= NULL,
+                          region_shape=NULL
 ) {
 
   #-----------------------------------------
@@ -276,14 +277,41 @@ get_gbif_data <- function(taxon_key,
   #-----------------------------------------
   #           2. Download data
   #-----------------------------------------
+  if (!is.null(region_shape)) {
+    #read in shapefile
+      region_sf<- sf::st_read(region_shape, quiet=TRUE)
 
-  gbif_download <- rgbif::occ_download(
-    rgbif::pred_in("taxonKey", taxon_key),
-    rgbif::pred("hasCoordinate", TRUE),
-    rgbif::pred_gt("year", 1900),
-    user = rstudioapi::askForPassword("GBIF username"),
-    pwd = rstudioapi::askForPassword("GBIF password"),
-    email = rstudioapi::askForPassword("Email address for notification"))
+
+    #Place it in the right orientation
+    region_sf<- region_sf %>%
+      sf::st_transform(crs=4326)%>%
+      sf::st_simplify(dTolerance=10) %>% #simplify the polygon because there may be too many points for rgbif
+      sf::st_geometry() %>%
+      sf::st_as_text()%>%
+      wk::wkt() %>%
+      wk::wk_orient()
+
+    gbif_download <- rgbif::occ_download(
+      rgbif::pred_in("taxonKey", taxon_key),
+      rgbif::pred("hasCoordinate", TRUE),
+      rgbif::pred_gt("year", 1900),
+      rgbif::pred("occurrenceStatus","PRESENT"),
+      rgbif::pred("hasGeospatialIssue", FALSE), # remove GBIF default geospatial issues
+      rgbif::pred_within(region_sf),
+      user = rstudioapi::askForPassword("GBIF username"),
+      pwd = rstudioapi::askForPassword("GBIF password"),
+      email = rstudioapi::askForPassword("Email address for notification"))
+  } else {
+    gbif_download <- rgbif::occ_download(
+      rgbif::pred_in("taxonKey", taxon_key),
+      rgbif::pred("hasCoordinate", TRUE),
+      rgbif::pred_gt("year", 1900),
+      rgbif::pred("occurrenceStatus","PRESENT"),
+      rgbif::pred("hasGeospatialIssue", FALSE), # remove GBIF default geospatial issues
+      user = rstudioapi::askForPassword("GBIF username"),
+      pwd = rstudioapi::askForPassword("GBIF password"),
+      email = rstudioapi::askForPassword("Email address for notification"))
+  }
 
   #Follow the status of the download
   rgbif::occ_download_wait(gbif_download)
