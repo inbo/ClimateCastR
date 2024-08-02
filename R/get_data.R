@@ -363,19 +363,75 @@ get_gbif_data <- function(taxon_key,
   data_sf <- gbif_data_clean%>%
     sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
 
-  #If the coord_unc argument was (not) provided:
-  if(is.null(identification_verification_status)){
-    identificationVerificationStatus_to_discard <- c(
-      "unverified",
-      "unvalidated",
-      "not validated",
-      "under validation",
-      "not able to validate",
-      "control could not be conclusive due to insufficient knowledge",
-      "uncertain",
-      "unconfirmed",
-      "unconfirmed - not reviewed",
-      "validation requested"
+  return(data_sf)
+}
+
+
+
+
+
+#' Import species occurrence data from a zip file and prepare them for climate casting
+#'
+#' @description
+#' This function imports species occurrence data from a zip file, filters them,
+#' and converts them into an sf data frame which can then be used for climate casting.
+#'
+#' @param zip_file Character specifying the path to a zip file holding occurrence records from a previous GBIF download.
+#' @param basis_of_record Optional character indicating the basisOfRecord types to be included in the data.
+#' If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
+#' "MATERIAL_SAMPLE", "LITERATURE", "PRESERVED_SPECIMEN", "UNKNOWN", and "MACHINE_OBSERVATION".
+#' @param coord_unc Optional numeric indicating the maximal coordinate uncertainty (m) an
+#' observation can have to be included in the data.
+#' If NULL, the default, all occurrences will be kept regardless of their coordinate uncertainty.
+#' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
+#' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
+#'
+#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @export
+#'
+#' @examples
+#' #download zip_file from GBIF
+#' rgbif::occ_download_get("0001221-210914110416597",
+#'                       path = tempdir(),
+#'                       overwrite = TRUE)
+#' zip_file <- file.path(tempdir(), "0001221-210914110416597.zip", fsep="\\")
+#' get_zip_data(zip_file)
+#'
+#' @author Soria Delva, Sander Devisscher
+
+get_zip_data <- function(zip_file,
+                         basis_of_record = NULL,
+                         coord_unc = NULL,
+                         identification_verification_status= NULL
+) {
+
+  #-----------------------------------------
+  # 1. Test function arguments
+  #-----------------------------------------
+
+  # Test that taxon_key is provided
+  assertthat::assert_that(!is.null(zip_file),
+                          msg = paste(
+                            "zip_file is missing."
+                          )
+  )
+
+  # Test that zip_file is of class character
+  assertthat::assert_that(is.character(zip_file),
+                          msg = "zip_file should be of class character."
+  )
+
+
+
+  # Test that the path to the zip file is correct, and the file exists
+  assertthat::assert_that(file.exists(zip_file),
+                          msg = "The zip file cannot be found. Please check the specified path."
+  )
+
+  # Test that basis_of_record (when provided) is of class character
+  if (!is.null(basis_of_record)) {
+    assertthat::assert_that(is.character(basis_of_record),
+                            msg = "basis_of_record should be of class character."
     )
   }
 
