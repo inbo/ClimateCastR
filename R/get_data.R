@@ -354,24 +354,8 @@ get_gbif_data <- function(taxon_key,
   #-----------------------------------------
   #         3. Clean data
   #-----------------------------------------
-  gbif_data <- gbif_data %>%
-    dplyr::select("acceptedTaxonKey",
-                  "species",
-                  "decimalLatitude",
-                  "decimalLongitude",
-                  "establishmentMeans",
-                  "coordinateUncertaintyInMeters",
-                  "basisOfRecord",
-                  "taxonRank",
-                  "taxonomicStatus",
-                  "genus",
-                  "specificEpithet",
-                  "eventDate",
-                  "occurrenceStatus",
-                  "gbifID",
-                  "year",
-                  "countryCode",
-                  "identificationVerificationStatus")
+  gbif_data_clean <- gbif_data %>%
+    data_clean(basis_of_record, coord_unc, identification_verification_status)
 
   #If the coord_unc argument was (not) provided:
   if(is.null(coord_unc)){
