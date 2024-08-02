@@ -175,7 +175,7 @@ data_clean<-function(gbif_data,
 #' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
 #' @param region_shape Optional character specifying a path to a shape file indicating the region from which occurrence records should be downloaded.
 #'
-#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @returns An sf data frame holding occurrence records that are ready to be used for climate casting.
 #'
 #' @export
 #'
@@ -387,7 +387,7 @@ get_gbif_data <- function(taxon_key,
 #' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
 #' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
 #'
-#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @returns An sf data frame holding occurrence records that are ready to be used for climate casting.
 #' @export
 #'
 #' @examples
@@ -543,7 +543,7 @@ get_zip_data <- function(zip_file,
 #' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
 #' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
 #'
-#' @return An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @returns An sf data frame holding occurrence records that are ready to be used for climate casting.
 #' @export
 #'
 #' @author Soria Delva, Sander Devisscher
