@@ -23,8 +23,7 @@ observation can have to be included in the data.
 If NULL, the default, all occurrences will be kept regardless of their coordinate uncertainty.}
 
 \item{identification_verification_status}{Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
-If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge",
-"1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".}
+If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".}
 }
 \value{
 An sf data frame holding occurrence records that are ready to be used for climate casting.
@@ -34,7 +33,7 @@ This function imports species occurrence data from a previous GBIF download, fil
 and converts them into an sf data frame which can then be used for climate casting.
 }
 \examples{
-
+#Provide a downloadkey
 downloadkey<-"0001221-210914110416597"
 get_downloadkey_data(downloadkey,
                      coord_unc= 1000,

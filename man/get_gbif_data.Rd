@@ -24,8 +24,7 @@ observation can have to be included in the data.
 If NULL, the default, all occurrences will be kept regardless of their coordinate uncertainty.}
 
 \item{identification_verification_status}{Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
-If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge",
-"1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".}
+If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".}
 
 \item{region_shape}{Optional character specifying a path to a shape file indicating the region from which occurrence records should be downloaded.}
 }
@@ -51,8 +50,8 @@ get_gbif_data(taxon_key,
 taxon_key<-2427091
 url <- "https://zenodo.org/records/3386224"
 zipfile <- tempfile(fileext = ".zip")
-download.file(url, zipfile, mode = "wb")
-unzip(zipfile, exdir = tempdir())
+utils::download.file(url, zipfile, mode = "wb")
+utils::unzip(zipfile, exdir = tempdir())
 shapefile_path<-file.path(tempdir(), "flanders.shp")
 
 get_gbif_data(taxon_key,
