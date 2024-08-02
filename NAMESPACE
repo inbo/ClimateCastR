@@ -2,6 +2,9 @@
 
 export(climate_match)
 export(get_cred)
+export(get_downloadkey_data)
+export(get_gbif_data)
+export(get_zip_data)
 importFrom(dplyr,"%>%")
 importFrom(dplyr,.data)
 importFrom(svDialogs,dlgInput)
