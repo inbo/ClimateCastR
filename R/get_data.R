@@ -284,20 +284,15 @@ get_gbif_data <- function(taxon_key,
     )
 
     not_accepted <- mapped_taxa %>%
-      dplyr::filter(taxonomicStatus !="ACCEPTED")
+      dplyr::filter(.data$taxonomicStatus !="ACCEPTED")
 
     if (nrow(not_accepted)!=0) {
       warning(paste0("The following taxon key(s) are not considered accepted taxa in the GBIF backbone: "
                      ,taxon_key[!taxon_key %in% not_accepted$key], ".")
-              )
+      )
     }
-    remove(mapped_taxa)
-    remove(not_accepted)
-    remove(taxon_key_df)
 
   }
-
-
 
 
   #-----------------------------------------
@@ -352,12 +347,12 @@ get_gbif_data <- function(taxon_key,
   #Check that download provided data
   assertthat::assert_that(nrow(gbif_data)!=0,
                           msg = paste("No occurrence records for taxonkey(s) ",
-                            paste(taxon_key, collapse = ", "),
-                            " were found on GBIF.")
+                                      paste(taxon_key, collapse = ", "),
+                                      " were found on GBIF.")
   )
 
   #-----------------------------------------
-  #         3  . clean data
+  #         3. Clean data
   #-----------------------------------------
   gbif_data <- gbif_data %>%
     dplyr::select("acceptedTaxonKey",
@@ -473,7 +468,6 @@ get_gbif_data <- function(taxon_key,
     )
 
 
-  remove(gbif_data)
 
   data_sf <- data_cleaned %>%
     sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
