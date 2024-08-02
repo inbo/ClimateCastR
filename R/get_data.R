@@ -218,15 +218,41 @@ get_gbif_data <- function(taxon_key,
 
   # Test that taxon_key is provided
   assertthat::assert_that(!is.null(taxon_key),
-                          msg = paste(
-                            "taxon_key is missing."
+                          msg = paste( "taxon_key is missing."
                           )
   )
 
   # Test that taxon_key is of class numeric
-  if (!is.null(taxon_key)) {
-    assertthat::assert_that(is.numeric(taxon_key),
-                            msg = "taxon_key should be of class numeric."
+  assertthat::assert_that(is.numeric(taxon_key),
+                          msg = "taxon_key should be of class numeric."
+  )
+
+
+  # Test that basis_of_record (when provided) is of class character
+  if (!is.null(basis_of_record)) {
+    assertthat::assert_that(is.character(basis_of_record),
+                            msg = "basis_of_record should be of class character."
+    )
+  }
+
+  # Test that coord_unc (when provided) is of class numeric
+  if (!is.null(coord_unc)) {
+    assertthat::assert_that(is.numeric (coord_unc),
+                            msg = "coord_unc should be of class numeric."
+    )
+  }
+
+  # Test that identification_verification_status (when provided) is of class character
+  if (!is.null(identification_verification_status)) {
+    assertthat::assert_that(is.character(identification_verification_status),
+                            msg = "identification_verification_status should be of class character."
+    )
+  }
+
+  # Test that region_shape (when provided) is of class character
+  if (!is.null(region_shape)) {
+    assertthat::assert_that(is.character(region_shape),
+                            msg = "region_shape should be of class character."
     )
   }
 
