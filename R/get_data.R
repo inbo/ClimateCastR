@@ -395,7 +395,7 @@ get_gbif_data <- function(taxon_key,
 #' rgbif::occ_download_get("0001221-210914110416597",
 #'                       path = tempdir(),
 #'                       overwrite = TRUE)
-#' zip_file <- file.path(tempdir(), "0001221-210914110416597.zip", fsep="\\")
+#' zip_file <- file.path(tempdir(), "0001221-210914110416597.zip", fsep="/")
 #' get_zip_data(zip_file)
 #'
 #' @author Soria Delva, Sander Devisscher
