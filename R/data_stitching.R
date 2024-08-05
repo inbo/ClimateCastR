@@ -25,4 +25,38 @@ data_stitching <- function(x,
                           )
   )
 
+  #Test that all necessary columns are present
+  columnnames<-c("acceptedTaxonKey",
+                 "decimalLatitude",
+                 "decimalLongitude",
+                 "coordinateUncertaintyInMeters",
+                 "acceptedScientificName",
+                 "year_cat",
+                 "n_obs",
+                 "geometry")
 
+  missing_in_x<- setdiff(names(x),columnnames)
+
+  missing_in_y<- setdiff(names(y),columnnames)
+
+  assertthat::assert_that(columnnames %in% names(x),
+                          msg = paste( "The following columns are missing in", x,":", missing_in_x
+                          )
+  )
+
+  assertthat::assert_that(columnnames %in% names(y),
+                          msg = paste( "The following columns are lacking in", y,":", missing_in_y
+                          )
+  )
+
+
+  #-----------------------------------------
+  # 2. Data prep
+  #-----------------------------------------
+  x$acceptedScientificName<-scientific_name
+  y$acceptedScientificName<-scientific_name
+
+  joined_data<-rbind(x,y)
+
+  return(joined_data)
+}
