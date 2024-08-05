@@ -393,10 +393,12 @@ get_gbif_data <- function(taxon_key,
 #' @examples
 #' #'  \dontrun{
 #' #download zip_file from GBIF
+#' zipdir<-tempdir()
 #' rgbif::occ_download_get("0001221-210914110416597",
-#'                       path = tempdir(),
+#'                       path = zipdir,
 #'                       overwrite = TRUE)
-#' zip_file <- file.path(tempdir(), "0001221-210914110416597.zip", fsep="\\")
+#' zip_file <- file.path(zipdir, "0001221-210914110416597.zip")
+#' file.exists(zip_file)
 #' get_zip_data(zip_file)
 #'}
 #'
