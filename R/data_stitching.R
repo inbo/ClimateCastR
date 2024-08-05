@@ -7,15 +7,15 @@ data_stitching <- function(x,
   # 1. Test function arguments
   #-----------------------------------------
 
-  # Test that x is of class data.frame
-  assertthat::assert_that(inherits(x, "data.frame"),
-                          msg = paste( "x is not of class data.frame."
+  # Test that x is of class sf
+  assertthat::assert_that(inherits(x, "sf"),
+                          msg = paste( "x is not an sf dataframe."
                           )
   )
 
-  #Test that y is of class data.frame
-  assertthat::assert_that(inherits(y, "data.frame"),
-                          msg = paste( "y is not of class data.frame."
+  #Test that y is of class sf
+  assertthat::assert_that(inherits(y, "sf"),
+                          msg = paste( "y is not an sf dataframe."
                           )
   )
 
