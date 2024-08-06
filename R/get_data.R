@@ -32,7 +32,7 @@
 #'
 #' #provide a taxon key and a path to a shapefile
 #' taxon_key<-2427091
-#' url <- "https://zenodo.org/records/3386224"
+#' url <- "https://zenodo.org/api/records/3386224/files-archive"
 #' zipfile <- tempfile(fileext = ".zip")
 #' utils::download.file(url, zipfile, mode = "wb")
 #' utils::unzip(zipfile, exdir = tempdir())
