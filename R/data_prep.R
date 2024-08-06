@@ -10,10 +10,15 @@
 #' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
 #' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
 #'
-#' @return  An sf data frame holding occurrence records that are ready to be used for climate casting.
+#' @returns An sf data frame holding occurrence records that are ready to be used for climate casting.
 #' @export
 #'
 #' @examples
+#' # Create a dataframe with occurrence data
+#'  example_df <- rgbif::occ_download_get("0001221-210914110416597",overwrite = TRUE) %>%
+#'  rgbif::occ_download_import()
+#'  df<-data_prep(example_df)
+#'
 data_prep<-function(gbif_data,
                     basis_of_record=NULL,
                     coord_unc=NULL,
