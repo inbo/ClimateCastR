@@ -341,22 +341,6 @@ get_zip_data <- function(zip_file,
   #-----------------------------------------
   #         3  . Clean data
   #-----------------------------------------
-  #We will remove data with default geospatial issues, that are not PRESENT, and that don't have coordinates
-  #This was done during the download of the get_data_gbif function but has to be specified separately here
-  issues_to_discard <- c(
-    "ZERO_COORDINATE",
-    "COORDINATE_OUT_OF_RANGE",
-    "COORDINATE_INVALID",
-    "COUNTRY_COORDINATE_MISMATCH"
-  )
-
-  zip_data<- zip_data %>%
-    dplyr::filter(
-      !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
-      .data$occurrenceStatus == "PRESENT",
-      !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
-    )
-
 
   zip_data_prep<- zip_data %>%
     data_prep(basis_of_record, coord_unc, identification_verification_status)
@@ -460,22 +444,6 @@ get_downloadkey_data <- function(downloadkey,
   #-----------------------------------------
   #         3  . Clean data
   #-----------------------------------------
-
-  #We will remove data with default geospatial issues, that are not PRESENT, and that don't have coordinates
-  #This was done during the download of the get_data_gbif function but has to be specified separately here
-  issues_to_discard <- c(
-    "ZERO_COORDINATE",
-    "COORDINATE_OUT_OF_RANGE",
-    "COORDINATE_INVALID",
-    "COUNTRY_COORDINATE_MISMATCH"
-  )
-
-  downloadkey_data<- downloadkey_data %>%
-    dplyr::filter(
-      !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
-      .data$occurrenceStatus == "PRESENT",
-      !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
-    )
 
     downloadkey_data_prep <- downloadkey_data %>%
     data_prep(basis_of_record, coord_unc, identification_verification_status)

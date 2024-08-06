@@ -10,7 +10,7 @@
 #' @param identification_verification_status Optional character or a character vector indicating the identificationVerificationStatus of occurrence records that will be kept.
 #' If NULL, the default, all occurrences will be kept except those with the following identificationVerificationStatus: "unverified", "unvalidated", "not validated", "under validation", "not able to validate", "control could not be conclusive due to insufficient knowledge",  "Control could not be conclusive due to insufficient knowledge", "1","uncertain", "unconfirmed", "Douteux", "Invalide", "Non réalisable", "verification needed" , "Probable", "unconfirmed - not reviewed", "validation requested".
 #'
-#' @return
+#' @return  An sf data frame holding occurrence records that are ready to be used for climate casting.
 #' @export
 #'
 #' @examples
@@ -94,6 +94,24 @@ data_prep<-function(gbif_data,
       " record types will be included: ", paste(basis_of_record, collapse = ", ")
     ))
   }
+
+  #First filtering step remove data with default geospatial issues, that are not PRESENT, and that don't have coordinates
+  #This was done during the download of the get_data_gbif function but has to be specified separately here
+  issues_to_discard <- c(
+    "ZERO_COORDINATE",
+    "COORDINATE_OUT_OF_RANGE",
+    "COORDINATE_INVALID",
+    "COUNTRY_COORDINATE_MISMATCH"
+  )
+
+  gbif_data<-gbif_data %>%
+    dplyr::filter(
+      !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
+      .data$occurrenceStatus == "PRESENT",
+      !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
+    )
+
+
 
   # Create a dataframe with the accepted species name and corresponding acceptedTaxonkey
   # This part is only useful when the species column can be different from the name of the accepted species
