@@ -95,23 +95,13 @@ data_prep<-function(gbif_data,
     ))
   }
 
-  #First filtering step remove data with default geospatial issues, that are not PRESENT, and that don't have coordinates
-  #This was done during the download of the get_data_gbif function but has to be specified separately here
+  #Indicate which issues should be discarded during the filtering step
   issues_to_discard <- c(
     "ZERO_COORDINATE",
     "COORDINATE_OUT_OF_RANGE",
     "COORDINATE_INVALID",
     "COUNTRY_COORDINATE_MISMATCH"
   )
-
-  gbif_data<-gbif_data %>%
-    dplyr::filter(
-      !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
-      .data$occurrenceStatus == "PRESENT",
-      !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
-    )
-
-
 
   # Create a dataframe with the accepted species name and corresponding acceptedTaxonkey
   # This part is only useful when the species column can be different from the name of the accepted species
@@ -134,6 +124,9 @@ data_prep<-function(gbif_data,
       CoordinateCleaner::cc_cap(buffer = 2000) %>% # remove capitals centroids within 2k
       CoordinateCleaner::cc_inst(buffer = 2000) %>% # remove zoo and herbaria within 2k
       dplyr::filter(
+        !stringr::str_detect(.data$issue,  paste(issues_to_discard, collapse = "|")),
+        .data$occurrenceStatus == "PRESENT",
+        !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude),
         !is.na(.data$acceptedTaxonKey), #Remove occurrences of species for which the species column does not correspond accepted species (ASN_2)
         !is.na(.data$eventDate),
         !is.na(.data$decimalLatitude),
