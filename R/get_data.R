@@ -199,18 +199,13 @@ get_gbif_data <- function(taxon_key,
 
 
   #-----------------------------------------
-  #         3. Clean data
+  #         3. Prepare data
   #-----------------------------------------
-  gbif_data_clean <- gbif_data %>%
-    data_clean(basis_of_record, coord_unc, identification_verification_status)
+  gbif_data_prep <- gbif_data %>%
+    data_prep(basis_of_record, coord_unc, identification_verification_status)
 
-  #-------------------------------------------------
-  #      4. Save as an sf dataframe and return
-  #-------------------------------------------------
-  data_sf <- gbif_data_clean%>%
-    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
 
-  return(data_sf)
+  return(gbif_data_prep)
 }
 
 
@@ -363,16 +358,10 @@ get_zip_data <- function(zip_file,
     )
 
 
-  zip_data_clean <- zip_data %>%
-    data_clean(basis_of_record, coord_unc, identification_verification_status)
+  zip_data_prep<- zip_data %>%
+    data_prep(basis_of_record, coord_unc, identification_verification_status)
 
-  #-------------------------------------------------
-  #      4. Save as an sf dataframe and return
-  #-------------------------------------------------
-  zip_data_sf <- zip_data_clean%>%
-    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
-
-  return(zip_data_sf)
+  return(zip_data_prep)
 }
 
 
@@ -488,16 +477,11 @@ get_downloadkey_data <- function(downloadkey,
       !is.na(.data$decimalLongitude) & !is.na(.data$decimalLatitude)
     )
 
-    downloadkey_data_clean <- downloadkey_data %>%
-    data_clean(basis_of_record, coord_unc, identification_verification_status)
+    downloadkey_data_prep <- downloadkey_data %>%
+    data_prep(basis_of_record, coord_unc, identification_verification_status)
 
-  #-------------------------------------------------
-  #      4. Save as an sf dataframe and return
-  #-------------------------------------------------
-  downloadkey_data_sf <- downloadkey_data_clean%>%
-    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
 
-  return(downloadkey_data_sf)
+  return(downloadkey_data_prep)
 }
 
 
