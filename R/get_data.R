@@ -38,7 +38,7 @@
 #' utils::unzip(zipfile, exdir = tempdir())
 #' shapefile_path<-file.path(tempdir(), "flanders.shp")
 #'
-#' get_gbif_data(taxon_key,
+#' df<-get_gbif_data(taxon_key,
 #'              region_shape = shapefile_path
 #'              )
 #'}
@@ -240,7 +240,7 @@ get_gbif_data <- function(taxon_key,
 #'                       overwrite = TRUE)
 #' zip_file <- file.path(zipdir, "0001221-210914110416597.zip")
 #' file.exists(zip_file)
-#' get_zip_data(zip_file)
+#' df<-get_zip_data(zip_file)
 #'}
 #'
 #' @author Soria Delva, Sander Devisscher
@@ -389,7 +389,7 @@ get_zip_data <- function(zip_file,
 #' @examples
 #' #Provide a downloadkey
 #' downloadkey<-"0001221-210914110416597"
-#' get_downloadkey_data(downloadkey,
+#' df<-get_downloadkey_data(downloadkey,
 #'                      coord_unc= 1000,
 #'                      identification_verification_status= c("","valid"))
 #'
