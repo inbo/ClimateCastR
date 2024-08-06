@@ -1,3 +1,14 @@
+#'
+#'
+#' @param x
+#' @param y
+#' @param scientific_name
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#'
 data_stitching <- function(x,
                            y,
                            scientific_name
