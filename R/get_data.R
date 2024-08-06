@@ -298,9 +298,15 @@ get_gbif_data <- function(taxon_key,
   #-----------------------------------------
   #           2. Download data
   #-----------------------------------------
+
+  #Set credentials
+  gbif_user <- get_cred("gbif_username")
+  gbif_pwd <- get_cred("gbif_password")
+  gbif_email <- get_cred("gbif_emailaddress")
+
   if (!is.null(region_shape)) {
     #read in shapefile
-      region_sf<- sf::st_read(region_shape, quiet=TRUE)
+    region_sf<- sf::st_read(region_shape, quiet=TRUE)
 
 
     #Place it in the right orientation
@@ -319,9 +325,9 @@ get_gbif_data <- function(taxon_key,
       rgbif::pred("occurrenceStatus","PRESENT"),
       rgbif::pred("hasGeospatialIssue", FALSE), # remove GBIF default geospatial issues
       rgbif::pred_within(region_sf),
-      user = rstudioapi::askForPassword("GBIF username"),
-      pwd = rstudioapi::askForPassword("GBIF password"),
-      email = rstudioapi::askForPassword("Email address for notification"))
+      user = gbif_user,
+      pwd = gbif_pwd,
+      email = gbif_email)
   } else {
     gbif_download <- rgbif::occ_download(
       rgbif::pred_in("taxonKey", taxon_key),
@@ -329,9 +335,9 @@ get_gbif_data <- function(taxon_key,
       rgbif::pred_gt("year", 1900),
       rgbif::pred("occurrenceStatus","PRESENT"),
       rgbif::pred("hasGeospatialIssue", FALSE), # remove GBIF default geospatial issues
-      user = rstudioapi::askForPassword("GBIF username"),
-      pwd = rstudioapi::askForPassword("GBIF password"),
-      email = rstudioapi::askForPassword("Email address for notification"))
+      user = gbif_user,
+      pwd = gbif_pwd,
+      email = gbif_email)
   }
 
   #Follow the status of the download
