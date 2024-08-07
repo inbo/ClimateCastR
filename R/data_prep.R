@@ -174,8 +174,8 @@ data_prep<-function(gbif_data,
   data_cleaned<-sf::st_as_sf(data_cleaned, coords=c("decimalLongitude","decimalLatitude"),crs=4326, remove=FALSE)
 
   data_cleaned_no_sea<-data_cleaned %>%
-                        sf::st_join(., world) %>%
-                        dplyr::filter(!is.na(featurecla)) %>%
+                        sf::st_join(world) %>%
+                        dplyr::filter(!is.na(.data$featurecla)) %>%
                         dplyr::select(c("year_cat",
                                         "acceptedTaxonKey",
                                         "decimalLatitude",
