@@ -14,11 +14,12 @@
 #' @export
 #'
 #' @examples
+#' #Example for terrestrial data
 #' temp_dir<-tempdir()
 #' get_zip <- rgbif::occ_download_get("0001221-210914110416597", path= temp_dir, overwrite = TRUE)
 #' example_df <- rgbif::occ_download_import(get_zip)
 #' df<-data_prep(example_df)
-#'
+
 data_prep<-function(gbif_data,
                     basis_of_record=NULL,
                     coord_unc=NULL,
@@ -167,25 +168,30 @@ data_prep<-function(gbif_data,
   )
 
 
-  #Remove occurrences in the ocean, and check that these are not the majority of records
-  #NOTE, this still leaves quite some occurrence records very close to the coast!
-  suppressMessages(suppressWarnings(
-    data_cleaned_no_sea<-data_cleaned%>%
-      CoordinateCleaner::cc_sea(verbose=FALSE)
-  )
-  )
+  #Remove occurrences in the ocean and check that these are not the majority of records
+  world<-rnaturalearth::ne_countries(scale=10) %>%
+         sf::st_make_valid()
+
+  data_cleaned<-sf::st_as_sf(data_cleaned, coords=c("decimalLongitude","decimalLatitude"),crs=4326, remove=FALSE)
+
+  data_cleaned_no_sea<-data_cleaned %>%
+                        sf::st_join(., world) %>%
+                        dplyr::filter(!is.na(featurecla)) %>%
+                        dplyr::select(c("year_cat",
+                                        "acceptedTaxonKey",
+                                        "decimalLatitude",
+                                        "decimalLongitude",
+                                        "n_obs",
+                                        "coordinateUncertaintyInMeters",
+                                        "acceptedScientificName"
+                                        ))
 
   assertthat::assert_that(nrow(data_cleaned_no_sea) > (nrow(data_cleaned)/2),
-                          msg="The majority of occurrence records fall within the ocean. Climate matching is not possible for marine species."
+                          msg="The majority of occurrence records fall within the ocean. Climate casting is not possible for marine species."
   )
 
-  #-------------------------------------------------
-  #      4. Save as an sf dataframe and return
-  #-------------------------------------------------
-  data_sf <- data_cleaned_no_sea%>%
-    sf::st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
-
-  return(data_sf)
+  # return sf data frame
+  return(data_cleaned_no_sea)
 
 }
 
