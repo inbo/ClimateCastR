@@ -388,13 +388,14 @@ get_zip_data <- function(zip_file,
 #'
 #' @author Soria Delva, Sander Devisscher
 #' @examples
+#'   \dontrun{
 #' temp_dir<-tempdir()
 #' downloadkey<-"0001221-210914110416597"
 #' df<-get_downloadkey_data(downloadkey,
 #'                          path=temp_dir,
 #'                          coord_unc= 1000,
 #'                          identification_verification_status= c("","valid"))
-#'
+#' }
 
 get_downloadkey_data <- function(downloadkey,
                                  path = NULL,
