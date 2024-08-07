@@ -93,11 +93,6 @@ data_prep<-function(gbif_data,
       "UNKNOWN",
       "MACHINE_OBSERVATION"
     )
-
-    warning(paste0(
-      "The basis_of_record parameter was not provided, the following",
-      " record types will be included: ", paste(basis_of_record, collapse = ", ")
-    ))
   }
 
   #Indicate which issues should be discarded during the filtering step
