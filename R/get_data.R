@@ -232,7 +232,7 @@ get_gbif_data <- function(taxon_key,
 #' @export
 #'
 #' @examples
-#' #'  \dontrun{
+#'   \dontrun{
 #' #download zip_file from GBIF
 #' zipdir<-tempdir()
 #' rgbif::occ_download_get("0001221-210914110416597",
