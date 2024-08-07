@@ -239,7 +239,6 @@ get_gbif_data <- function(taxon_key,
 #'                       path = zipdir,
 #'                       overwrite = TRUE)
 #' zip_file <- file.path(zipdir, "0001221-210914110416597.zip")
-#' file.exists(zip_file)
 #' df<-get_zip_data(zip_file)
 #'}
 #'
@@ -357,6 +356,7 @@ get_zip_data <- function(zip_file,
 #' and converts them into an sf data frame which can then be used for climate casting.
 #'
 #' @param downloadkey Character specifying the download key of a previous GBIF download.
+#' @param path Optional character string, specifying the path to write the zip file to. Defaults to ".".
 #' @param basis_of_record Optional character indicating the basisOfRecord types to be included in the data.
 #' If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
 #' "MATERIAL_SAMPLE", "LITERATURE", "PRESERVED_SPECIMEN", "UNKNOWN", and "MACHINE_OBSERVATION".
