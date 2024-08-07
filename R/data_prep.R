@@ -152,8 +152,9 @@ data_prep<-function(gbif_data,
                       .data$acceptedTaxonKey,
                       .data$decimalLatitude,
                       .data$decimalLongitude) %>%
-      dplyr::mutate(coordinateUncertaintyInMeters = case_when(!all(is.na(.data$coordinateUncertaintyInMeters)) ~ min(.data$coordinateUncertaintyInMeters, na.rm=TRUE),
-                                                              TRUE ~ NA_integer_))%>%
+      dplyr::mutate(coordinateUncertaintyInMeters = ifelse(all(is.na(.data$coordinateUncertaintyInMeters)),
+                                                           NA_real_,
+                                                           min(.data$coordinateUncertaintyInMeters, na.rm = TRUE)))%>%
       dplyr::summarize(n_obs = dplyr::n(),
                        coordinateUncertaintyInMeters = dplyr::first(coordinateUncertaintyInMeters)) %>%
       dplyr::ungroup() %>%
