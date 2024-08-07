@@ -57,8 +57,8 @@ temp_dir<-tempdir()
 url <- "https://zenodo.org/api/records/3386224/files-archive"
 zipfile <- tempfile(fileext = ".zip")
 utils::download.file(url, zipfile, mode = "wb")
-utils::unzip(zipfile, exdir = tempdir())
-shapefile_path<-file.path(tempdir(), "flanders.shp")
+utils::unzip(zipfile, exdir = temp_dir)
+shapefile_path<-file.path(temp_dir, "flanders.shp")
 
 df<-get_gbif_data(taxon_key,
                   path = temp_dir,
