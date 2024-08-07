@@ -374,11 +374,13 @@ get_zip_data <- function(zip_file,
 #' #Provide a downloadkey
 #' downloadkey<-"0001221-210914110416597"
 #' df<-get_downloadkey_data(downloadkey,
-#'                      coord_unc= 1000,
-#'                      identification_verification_status= c("","valid"))
+#'                          path=temp_dir,
+#'                          coord_unc= 1000,
+#'                          identification_verification_status= c("","valid"))
 #'
 
 get_downloadkey_data <- function(downloadkey,
+                                 path = NULL,
                                  basis_of_record = NULL,
                                  coord_unc = NULL,
                                  identification_verification_status= NULL
@@ -399,6 +401,13 @@ get_downloadkey_data <- function(downloadkey,
   assertthat::assert_that(is.character(downloadkey),
                           msg = "downloadkey should be of class character."
   )
+
+  # Test that path (when provided) is of class character
+  if (!is.null(path)) {
+    assertthat::assert_that(is.character(path),
+                            msg = "zip_path should be of class character."
+    )
+  }
 
   # Test that basis_of_record (when provided) is of class character
   if (!is.null(basis_of_record)) {
@@ -425,10 +434,13 @@ get_downloadkey_data <- function(downloadkey,
   #-----------------------------------------
   #           2. Download data
   #-----------------------------------------
+  if (is.null(path)) {
+   path = "."
+  }
 
   #Retrieve downloaded records
-  downloadkey_data <- rgbif::occ_download_get(downloadkey,overwrite = TRUE) %>%
-    rgbif::occ_download_import()
+  downloadkey_data <- rgbif::occ_download_get(downloadkey, path=path, overwrite = TRUE) %>%
+                      rgbif::occ_download_import()
 
   #Retrieve citation of downloaded dataset
   print(rgbif::gbif_citation(rgbif::occ_download_meta(downloadkey))$download)
