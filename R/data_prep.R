@@ -156,7 +156,7 @@ data_prep<-function(gbif_data,
                                                            NA_real_,
                                                            min(.data$coordinateUncertaintyInMeters, na.rm = TRUE)))%>%
       dplyr::summarize(n_obs = dplyr::n(),
-                       coordinateUncertaintyInMeters = dplyr::first(coordinateUncertaintyInMeters)) %>%
+                       coordinateUncertaintyInMeters = dplyr::first(.data$coordinateUncertaintyInMeters)) %>%
       dplyr::ungroup() %>%
       dplyr::left_join(species_info, by = c("acceptedTaxonKey" = "acceptedTaxonKey_2")) %>%
       dplyr::rename(acceptedScientificName = "acceptedScientificName_2")
