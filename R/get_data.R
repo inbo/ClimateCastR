@@ -339,7 +339,7 @@ get_zip_data <- function(zip_file,
 
 
   #-----------------------------------------
-  #         3  . Clean data
+  #           3. Prepare data
   #-----------------------------------------
 
   zip_data_prep<- zip_data %>%
@@ -442,7 +442,7 @@ get_downloadkey_data <- function(downloadkey,
 
 
   #-----------------------------------------
-  #         3  . Clean data
+  #         3  . Prepare data
   #-----------------------------------------
 
     downloadkey_data_prep <- downloadkey_data %>%
