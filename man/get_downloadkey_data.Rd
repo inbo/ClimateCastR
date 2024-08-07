@@ -35,7 +35,7 @@ and converts them into an sf data frame which can then be used for climate casti
 \examples{
 #Provide a downloadkey
 downloadkey<-"0001221-210914110416597"
-get_downloadkey_data(downloadkey,
+df<-get_downloadkey_data(downloadkey,
                      coord_unc= 1000,
                      identification_verification_status= c("","valid"))
 
