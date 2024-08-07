@@ -33,14 +33,13 @@ This function imports species occurrence data from a zip file, filters them,
 and converts them into an sf data frame which can then be used for climate casting.
 }
 \examples{
-#'  \dontrun{
+  \dontrun{
 #download zip_file from GBIF
 zipdir<-tempdir()
 rgbif::occ_download_get("0001221-210914110416597",
                       path = zipdir,
                       overwrite = TRUE)
 zip_file <- file.path(zipdir, "0001221-210914110416597.zip")
-file.exists(zip_file)
 df<-get_zip_data(zip_file)
 }
 

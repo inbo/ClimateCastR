@@ -6,6 +6,7 @@
 \usage{
 get_downloadkey_data(
   downloadkey,
+  path = NULL,
   basis_of_record = NULL,
   coord_unc = NULL,
   identification_verification_status = NULL
@@ -13,6 +14,8 @@ get_downloadkey_data(
 }
 \arguments{
 \item{downloadkey}{Character specifying the download key of a previous GBIF download.}
+
+\item{path}{Optional character string, specifying the path to write the zip file to. Defaults to ".".}
 
 \item{basis_of_record}{Optional character indicating the basisOfRecord types to be included in the data.
 If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
@@ -33,11 +36,12 @@ This function imports species occurrence data from a previous GBIF download, fil
 and converts them into an sf data frame which can then be used for climate casting.
 }
 \examples{
-#Provide a downloadkey
+temp_dir<-tempdir()
 downloadkey<-"0001221-210914110416597"
 df<-get_downloadkey_data(downloadkey,
-                     coord_unc= 1000,
-                     identification_verification_status= c("","valid"))
+                         path=temp_dir,
+                         coord_unc= 1000,
+                         identification_verification_status= c("","valid"))
 
 }
 \author{

@@ -32,9 +32,9 @@ An sf data frame holding occurrence records that are ready to be used for climat
 Prepare species occurrence data from GBIF for climate casting
 }
 \examples{
-# Create a dataframe with occurrence data
- example_df <- rgbif::occ_download_get("0001221-210914110416597",overwrite = TRUE) \%>\%
-               rgbif::occ_download_import()
- df<-data_prep(example_df)
+temp_dir<-tempdir()
+get_zip <- rgbif::occ_download_get("0001221-210914110416597", path= temp_dir, overwrite = TRUE)
+example_df <- rgbif::occ_download_import(get_zip)
+df<-data_prep(example_df)
 
 }
