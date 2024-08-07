@@ -5,6 +5,7 @@
 #' and converts them into an sf data frame which can then be used for climate casting.
 #'
 #' @param taxon_key A numeric value or vector specifying the GBIF taxonKey(s).
+#' @param path Optional character string, specifying the path to write the downloaded zip file to. Defaults to ".".
 #' @param basis_of_record Optional character indicating the basisOfRecord types to be included in the data.
 #' If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
 #' "MATERIAL_SAMPLE", "LITERATURE", "PRESERVED_SPECIMEN", "UNKNOWN", and "MACHINE_OBSERVATION".
@@ -22,30 +23,35 @@
 #' @examples
 #'  \dontrun{
 #' #provide GBIF taxon_key(s)
+#' temp_dir<-tempdir()
 #' taxon_key <- c(2865504, 5274858)
-#' get_gbif_data(taxon_key)
-#' get_gbif_data(taxon_key,
-#'               coord_unc = 100,
-#'               basis_of_record = "HUMAN_OBSERVATION",
-#'               identification_verification_status= c("Probable", "valid","confident","")
-#'               )
+#' df<-get_gbif_data(taxon_key)
+#' df<-get_gbif_data(taxon_key,
+#'                   path = temp_dir,
+#'                   coord_unc = 100,
+#'                   basis_of_record = "HUMAN_OBSERVATION",
+#'                   identification_verification_status= c("Probable", "valid","confident","")
+#'                   )
 #'
-#' #provide a taxon key and a path to a shapefile
+#' #provide a taxon key, a path to store the download, and a path to a shapefile
 #' taxon_key<-2427091
+#' temp_dir<-tempdir()
 #' url <- "https://zenodo.org/api/records/3386224/files-archive"
 #' zipfile <- tempfile(fileext = ".zip")
 #' utils::download.file(url, zipfile, mode = "wb")
-#' utils::unzip(zipfile, exdir = tempdir())
-#' shapefile_path<-file.path(tempdir(), "flanders.shp")
+#' utils::unzip(zipfile, exdir = temp_dir)
+#' shapefile_path<-file.path(temp_dir, "flanders.shp")
 #'
 #' df<-get_gbif_data(taxon_key,
-#'              region_shape = shapefile_path
-#'              )
+#'                   path = temp_dir,
+#'                   region_shape = shapefile_path
+#'                   )
 #'}
 #'
 #' @author Soria Delva, Sander Devisscher
 
 get_gbif_data <- function(taxon_key,
+                          path = NULL,
                           basis_of_record = NULL,
                           coord_unc = NULL,
                           identification_verification_status= NULL,
@@ -67,6 +73,12 @@ get_gbif_data <- function(taxon_key,
                           msg = "taxon_key should be of class numeric."
   )
 
+  # Test that path (when provided) is of class character
+  if (!is.null(path)) {
+    assertthat::assert_that(is.character(path),
+                            msg = "zip_path should be of class character."
+    )
+  }
 
   # Test that basis_of_record (when provided) is of class character
   if (!is.null(basis_of_record)) {
@@ -142,12 +154,17 @@ get_gbif_data <- function(taxon_key,
   #Set credentials
   gbif_user <- get_cred("gbif_username")
   gbif_pwd <- get_cred("gbif_password")
-  gbif_email <- get_cred("gbif_emailaddress")
+  gbif_email <- get_cred("gbif_email")
 
+  #Specify path
+  if (is.null(path)) {
+    path = "."
+  }
+
+  #Download
   if (!is.null(region_shape)) {
     #read in shapefile
     region_sf<- sf::st_read(region_shape, quiet=TRUE)
-
 
     #Place it in the right orientation
     region_sf<- region_sf %>%
@@ -184,7 +201,7 @@ get_gbif_data <- function(taxon_key,
   rgbif::occ_download_wait(gbif_download)
 
   #Retrieve downloaded records
-  gbif_data <- rgbif::occ_download_get(gbif_download,overwrite = TRUE) %>%
+  gbif_data <- rgbif::occ_download_get(gbif_download, path = path, overwrite = TRUE) %>%
     rgbif::occ_download_import()
 
   #Retrieve citation of downloaded dataset

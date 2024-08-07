@@ -6,6 +6,7 @@
 \usage{
 get_gbif_data(
   taxon_key,
+  path = NULL,
   basis_of_record = NULL,
   coord_unc = NULL,
   identification_verification_status = NULL,
@@ -14,6 +15,8 @@ get_gbif_data(
 }
 \arguments{
 \item{taxon_key}{A numeric value or vector specifying the GBIF taxonKey(s).}
+
+\item{path}{Optional character string, specifying the path to write the downloaded zip file to. Defaults to ".".}
 
 \item{basis_of_record}{Optional character indicating the basisOfRecord types to be included in the data.
 If NULL, the default, occurrences with the following basisOfRecord will be kept:  "OBSERVATION", "HUMAN_OBSERVATION",
@@ -38,16 +41,19 @@ and converts them into an sf data frame which can then be used for climate casti
 \examples{
  \dontrun{
 #provide GBIF taxon_key(s)
+temp_dir<-tempdir()
 taxon_key <- c(2865504, 5274858)
-get_gbif_data(taxon_key)
-get_gbif_data(taxon_key,
-              coord_unc = 100,
-              basis_of_record = "HUMAN_OBSERVATION",
-              identification_verification_status= c("Probable", "valid","confident","")
-              )
+df<-get_gbif_data(taxon_key)
+df<-get_gbif_data(taxon_key,
+                  path = temp_dir,
+                  coord_unc = 100,
+                  basis_of_record = "HUMAN_OBSERVATION",
+                  identification_verification_status= c("Probable", "valid","confident","")
+                  )
 
-#provide a taxon key and a path to a shapefile
+#provide a taxon key, a path to store the download, and a path to a shapefile
 taxon_key<-2427091
+temp_dir<-tempdir()
 url <- "https://zenodo.org/api/records/3386224/files-archive"
 zipfile <- tempfile(fileext = ".zip")
 utils::download.file(url, zipfile, mode = "wb")
@@ -55,8 +61,9 @@ utils::unzip(zipfile, exdir = tempdir())
 shapefile_path<-file.path(tempdir(), "flanders.shp")
 
 df<-get_gbif_data(taxon_key,
-             region_shape = shapefile_path
-             )
+                  path = temp_dir,
+                  region_shape = shapefile_path
+                  )
 }
 
 }
