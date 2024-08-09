@@ -4,15 +4,23 @@
 \alias{get_cred}
 \title{Interactively get & store credentials in the system environment}
 \usage{
-get_cred(x)
+get_cred(x, force = FALSE)
 }
 \arguments{
 \item{x}{a character with the name of the system environment variable to get
-and store}
+and store if missing}
+
+\item{force}{a boolean indicating whether to force the user to input the
+credential}
 }
 \value{
 a character vector containing the value of the system variable
 }
 \description{
 Interactively get & store credentials in the system environment
+}
+\examples{
+\dontrun{
+get_cred("gbif_user")
+}
 }
