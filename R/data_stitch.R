@@ -1,23 +1,25 @@
 
-#' Title
+#' Combine occurrence data from different species into a single species complex and prepare this dataset for climate casting.
 #'
 #' @param x An sf dataframe, resulting from either get_gbif_data(), get_zip_data(), or get_downloadkey_data().
-#' @param to_stitch A vector of two or more taxon keys, present in x under "acceptedTaxonKey", that should be combined into a species complex.
-#' @param taxa_complex_name A character value, specifying the name of the species complex.
+#' @param to_stitch A numeric vector of two or more taxon keys, present in x under "acceptedTaxonKey", that should be combined into a species complex.
+#' @param taxa_complex_name A character value, specifying the name that will be assigned to the species complex.
 #' @param taxa_complex_key An optional numeric value, specifying the acceptedTaxonKey that will be assigned to the species complex. If not provided,the taxon key of one of the species in the complex is used.
 #'
-#' @return An sf data frame holding occurrence records, including those of a species complex, that are ready to be used for climate casting.
+#' @return A sf data frame, holding occurrence records of a species complex, ready to be used for climate casting.
 #' @export
 #'
 #' @examples
-#' taxon_key <- c(2865504,5274858,9225458 )
+#'  \dontrun{
+#' taxon_key <- c(2865504,2891932,2891930)
 #' df<-get_gbif_data(taxon_key,
 #'                   path = tempdir()
 #'                   )
 #' df_stitched<- data_stitch(df,
-#'                           to_stitch = c(2865504,5274858),
-#'                           taxa_complex_name= "Example_complex"
+#'                           to_stitch = c(2891932,2891930),
+#'                           taxa_complex_name= "Casuarina cunninghamiana/equisetifolia"
 #'                           )
+#'           }
 data_stitch <- function(x,
                         to_stitch,
                         taxa_complex_name,
@@ -89,11 +91,11 @@ data_stitch <- function(x,
   if(!is.null (taxa_complex_key)) {
   data_to_stitch$acceptedTaxonKey<- taxa_complex_key
   }else{
-  data_to_stitch$acceptedTaxonKey<- first(unique(data_to_stitch$acceptedTaxonKey))
+  data_to_stitch$acceptedTaxonKey<- dplyr::first(unique(data_to_stitch$acceptedTaxonKey))
   }
 
   #Recalculate the n_obs per year_category for this species complex
-  data_to_stitch_2<-data_to_stitch %>%
+  data_to_stitch<-data_to_stitch %>%
     dplyr::group_by(.data$year_cat,
                     .data$acceptedScientificName,
                     .data$acceptedTaxonKey,
@@ -108,7 +110,7 @@ data_stitch <- function(x,
     dplyr::relocate(acceptedScientificName, .after=coordinateUncertaintyInMeters) #reorder columns
 
   #Combine the two dataframes and return
-  stitched_data<-rbind(data_to_keep, data_to_stitch_2)
+  stitched_data<-rbind(data_to_keep, data_to_stitch)
 
   return(stitched_data)
 }
