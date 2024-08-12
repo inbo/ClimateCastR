@@ -8,6 +8,7 @@
 #' @param data A sf object resulting from previous steps in the ClimateCastR - flow
 #' @param cutoff A numeric value defining the distance cutoff for grouping points
 #' @param fun A function to apply to the grouped points. Default is 'mean'
+#' @param n An integer defining the number of points to process at a time. Default is 1000
 #'
 #' @details
 #' The cutoff is set to 1000 meters by default. This means that points that are
@@ -17,6 +18,14 @@
 #' The fun argument can be any function that takes a numeric vector as input and
 #' returns a single numeric value. The default is the mean function. Other options
 #' are median, min, max & sum.
+#'
+#' The n argument is used to split the data into chunks. This is useful when the
+#' data defined by a taxonkey and year_cat has more than n points. The default is 1000.
+#' When the data has less than n points, the function will process all the data at once.
+#' Spatial groups are calculated within a chunk. The function will then merge the
+#' chunks and calculate the mean of the points in each group.
+#' Increasing the n argument will slow down the function, but may thin the data more.
+#' Decreasing the n argument will speed up the function, but may thin the data less.
 #'
 #' @return A sf object with the same columns as the input data, but with fewer rows
 #'
@@ -30,7 +39,8 @@
 
 data_thin <- function(df,
                       cutoff = 1000,
-                      fun = 'mean') {
+                      fun = 'mean',
+                      n = 1000) {
   # Check if the input data is an sf object
   if (!inherits(df, "sf")) {
     stop("The input data must be an sf object")
@@ -80,6 +90,7 @@ data_thin <- function(df,
 
     # for loop to go through each year_cat
     for (y in 1:length(year_cats)){
+      message(paste0("Processing taxonkey ", taxonkeys[t], " in period ", year_cats[y]))
       # subset the data for each year_cat
       data <- taxa_data %>%
         dplyr::filter(year_cat == year_cats[y])
@@ -92,38 +103,87 @@ data_thin <- function(df,
       }
 
       # Calculate pairwise distances between points
-      dists <- sf::st_distance(data) %>%
-        units::drop_units()
+      message("Calculating pairwise distances between points")
+      if(nrow(data) > n){
+        message("The data has more than ", n, " points. This may take a while.")
+        # split the data into chunks
 
-      # Set diagonal to NA
-      diag(dists) <- NA
+        chunks <- split(data, 1:nrow(data) %/% n)
 
-      # Create a logical matrix where distances are less than or equal to cutoff
-      close <- dists <= cutoff
+        groups <- pbapply::pblapply(seq_along(chunks), function(i) {
+          # determine the chunk_number & subset the data
+          x <- chunks[[i]]
+          chunk_number <- i
 
-      # Create a vector to store the group number for each point
-      group <- rep(NA, nrow(data))
+          # Calculate pairwise distances between points
+          dist_matrix <- sf::st_distance(x) %>%
+            units::drop_units()
 
-      # Initialize the group number
-      g <- 1
+          # Set diagonal to NA
+          diag(dist_matrix) <- NA
 
-      # Loop through the rows of the logical matrix
-      for (i in 1:nrow(close)) {
-        # If the point is not already in a group
-        if (is.na(group[i])) {
-          # Assign the group number to the point
-          group[i] <- g
-          # Find the points that are close to the current point
-          close_points <- which(close[i, ])
-          # Assign the group number to the close points
-          group[close_points] <- g
-          # Increment the group number
-          g <- g + 1
+          # Create a logical matrix where distances are less than or equal to cutoff
+          close <- dist_matrix <= cutoff
+
+          # Create a vector to store the group number for each point
+          group <- rep(NA, nrow(x))
+
+          # Initialize the group number
+          g <- 1
+
+          # Loop through the rows of the logical matrix
+          for (i in 1:nrow(close)) {
+            # If the point is not already in a group
+            if (is.na(group[i])) {
+              # Assign the group number to the point
+              group[i] <- paste0(chunk_number, "_", g)
+              # Find the points that are close to the current point
+              close_points <- which(close[i, ])
+              # Assign the group number to the close points
+              group[close_points] <- paste0(chunk_number, "_", g)
+              # Increment the group number
+              g <- g + 1
+            }
+          }
+          return(data.frame(group = group))
+        }) %>%
+          do.call(rbind, .)
+
+      } else {
+
+        dists <- sf::st_distance(data) %>%
+          units::drop_units()
+
+        # Set diagonal to NA
+        diag(dists) <- NA
+
+        # Create a logical matrix where distances are less than or equal to cutoff
+        close <- dists <= cutoff
+
+        # Create a vector to store the group number for each point
+        group <- rep(NA, nrow(data))
+
+        # Initialize the group number
+        g <- 1
+
+        # Loop through the rows of the logical matrix
+        for (i in 1:nrow(close)) {
+          # If the point is not already in a group
+          if (is.na(group[i])) {
+            # Assign the group number to the point
+            group[i] <- g
+            # Find the points that are close to the current point
+            close_points <- which(close[i, ])
+            # Assign the group number to the close points
+            group[close_points] <- g
+            # Increment the group number
+            g <- g + 1
+          }
         }
-      }
 
-      # Create a data frame with the group numbers
-      groups <- data.frame(group = group)
+        # Create a data frame with the group numbers
+        groups <- data.frame(group = group)
+      }
 
       # Calculate the mean of the points in each group
       means <- data %>%
@@ -134,7 +194,8 @@ data_thin <- function(df,
                          mean_decimalLatitude = mean(decimalLatitude, na.rm = TRUE)) %>%
         sf::st_as_sf(coords = c("mean_decimalLongitude", "mean_decimalLatitude"),
                      crs = 4326,
-                     remove = FALSE)
+                     remove = FALSE) %>%
+        dplyr::ungroup()
 
       # add groups to data
       data$group <- groups$group
@@ -143,6 +204,145 @@ data_thin <- function(df,
       data_thin <- dplyr::left_join(data %>% sf::st_drop_geometry(),
                                     means,
                                     by = "group")
+
+      n_groups <- dplyr::n_distinct(data_thin$group, data_thin$acceptedTaxonKey, data_thin$year_cat)
+
+      if(n_groups == 1 & nrow(data_thin) > 1){
+        warning(paste0("The data for ", taxonkeys[t], " in period ", year_cats[y], " has only one group. Try decreasing the cutoff value."))
+      }
+      if(n_groups == 0){
+        stop("The data has no groups. Data thining was unsuccessful. Try decreasing the cutoff value.")
+      }
+
+      if(n_groups < nrow(data_thin)){
+        message("Merging groups")
+        groups <- unique(data_thin$group)
+        # for loop to go through each group
+        # initiate progress bar
+        pb <- progress::progress_bar$new(format = "  [:bar] :percent ETA: :eta",
+                                         total = n_groups,
+                                         clear = FALSE,
+                                         width = 60)
+
+        for (g in groups){
+          pb$tick()
+          data_thin_group <- data_thin %>%
+            dplyr::filter(group == g)
+
+          if(nrow(data_thin_group) > 1){
+            if(fun == "mean"){
+              mean_n_obs <- mean(data_thin_group$n_obs, na.rm = TRUE)
+              mean_coordinateUncertaintyInMeters <-  mean(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(
+                  year_cat = year_cat,
+                  acceptedTaxonKey = taxonkey,
+                  n_obs = mean_n_obs,
+                  coordinateUncertaintyInMeters = mean_coordinateUncertaintyInMeters,
+                  decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                  decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                  group = g,
+                  geometry = data_thin_group$geometry[1],
+                  acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                  mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                  mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+            }
+            if(fun == "median"){
+              median_n_obs <- median(data_thin_group$n_obs, na.rm = TRUE)
+              median_coordinateUncertaintyInMeters <-  median(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(year_cat = year_cat,
+                               acceptedTaxonKey = taxonkey,
+                               n_obs = median_n_obs,
+                               coordinateUncertaintyInMeters = median_coordinateUncertaintyInMeters,
+                               decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                               group = g,
+                               geometry = data_thin_group$geometry[1],
+                               acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                               mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+            }
+            if(fun == "min"){
+              min_n_obs <- min(data_thin_group$n_obs, na.rm = TRUE)
+              min_coordinateUncertaintyInMeters <-  min(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(year_cat = year_cat,
+                               acceptedTaxonKey = taxonkey,
+                               n_obs = min_n_obs,
+                               coordinateUncertaintyInMeters = min_coordinateUncertaintyInMeters,
+                               decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                               group = g,
+                               geometry = data_thin_group$geometry[1],
+                               acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                               mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+            }
+            if(fun == "max"){
+              max_n_obs <- max(data_thin_group$n_obs, na.rm = TRUE)
+              max_coordinateUncertaintyInMeters <-  max(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(year_cat = year_cat,
+                               acceptedTaxonKey = taxonkey,
+                               n_obs = max_n_obs,
+                               coordinateUncertaintyInMeters = max_coordinateUncertaintyInMeters,
+                               decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                               group = g,
+                               geometry = data_thin_group$geometry[1],
+                               acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                               mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+            }
+            if(fun == "sum"){
+              sum_n_obs <- sum(data_thin_group$n_obs, na.rm = TRUE)
+              sum_coordinateUncertaintyInMeters <-  sum(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(year_cat = year_cat,
+                               acceptedTaxonKey = taxonkey,
+                               n_obs = sum_n_obs,
+                               coordinateUncertaintyInMeters = sum_coordinateUncertaintyInMeters,
+                               decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                               group = g,
+                               geometry = data_thin_group$geometry[1],
+                               acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                               mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+
+            }
+          }
+        }
+      }
+
+
+
       # rbind data for each year_cat
       if(y == 1){
         data_thin_all_year <- data_thin
@@ -150,6 +350,30 @@ data_thin <- function(df,
         data_thin_all_year <- rbind(data_thin_all_year, data_thin)
       }
     }
+    # add back acceptedScientificName
+    # get dataframe with acceptedTaxonkey & acceptedScientificNames
+    taxa_names <- taxa_data %>%
+      sf::st_drop_geometry() %>%
+      dplyr::select(acceptedTaxonKey, acceptedScientificName) %>%
+      dplyr::distinct() %>%
+      dplyr::group_by(acceptedTaxonKey) %>%
+      dplyr::add_tally()
+
+    if(nrow(taxa_names) > 1){
+      warning(paste0("The data for ", taxonkeys[t], " has more than one acceptedScientificName. >> ", taxa_names$acceptedScientificName[1], " << was used."))
+    }
+
+    taxa_names <- taxa_names[1,] %>%
+      dplyr::select(-n)
+
+    data_thin_all_year <- data_thin_all_year %>%
+      dplyr::select(-acceptedScientificName) %>%
+      dplyr::left_join(taxa_names, by = "acceptedTaxonKey")
+
+    # remove group column and mean_decimalLatitude, mean_decimalLongitude
+    data_thin_all_year <- data_thin_all_year %>%
+      dplyr::select(-group, -mean_decimalLatitude, -mean_decimalLongitude)
+
     # rbind data for each taxonkey
     if(t == 1){
       data_thin_all <- data_thin_all_year
@@ -157,20 +381,8 @@ data_thin <- function(df,
       data_thin_all <- rbind(data_thin_all, data_thin_all_year)
     }
   }
-
-  if(fun == "mean"){
-    dplyr::n_distinct(data_thin_all$group, data_thin_all$acceptedTaxonKey, data_thin_all$year_cat)
-
-    data_thin_redux <- data_thin_all %>%
-      dplyr::group_by(group, acceptedTaxonKey, year_cat) %>%
-      dplyr::summarise(n_obs = mean(n_obs, na.rm = TRUE),
-                       coordinateUncertaintyInMeters = mean(coordinateUncertaintyInMeters, na.rm = TRUE),
-                       decimalLatitude = mean_decimalLatitude,
-                       decimalLongitude = mean_decimalLongitude,
-                       .groups = "keep") %>%
-      dplyr::ungroup()
-  }
   return(data_thin_all)
 }
+
 
 
