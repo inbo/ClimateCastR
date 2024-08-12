@@ -8,7 +8,7 @@
 #' @param data A sf object resulting from previous steps in the ClimateCastR - flow
 #' @param cutoff A numeric value defining the distance cutoff for grouping points
 #' @param fun A function to apply to the grouped points. Default is 'mean'
-#' @param n An integer defining the number of points to process at a time. Default is 1000
+#' @param n An integer defining the number of points to process at a time. Default is 2000
 #'
 #' @details
 #' The cutoff is set to 1000 meters by default. This means that points that are
@@ -20,7 +20,7 @@
 #' are median, min, max & sum.
 #'
 #' The n argument is used to split the data into chunks. This is useful when the
-#' data defined by a taxonkey and year_cat has more than n points. The default is 1000.
+#' data defined by a taxonkey and year_cat has more than n points. The default is 2000.
 #' When the data has less than n points, the function will process all the data at once.
 #' Spatial groups are calculated within a chunk. The function will then merge the
 #' chunks and calculate the mean of the points in each group.
@@ -40,7 +40,7 @@
 data_thin <- function(df,
                       cutoff = 1000,
                       fun = 'mean',
-                      n = 1000) {
+                      n = 2000) {
   # Check if the input data is an sf object
   if (!inherits(df, "sf")) {
     stop("The input data must be an sf object")
