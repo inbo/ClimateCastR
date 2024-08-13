@@ -5,7 +5,7 @@
 #' represented by the mean of the points in the group. Closeness is defined by a
 #' spatial cutoff distance.
 #'
-#' @param data A sf object resulting from previous steps in the ClimateCastR - flow
+#' @param x A sf object resulting from previous steps in the ClimateCastR - flow
 #' @param cutoff A numeric value defining the distance cutoff for grouping points
 #' @param fun A function to apply to the grouped points. Default is 'sum'
 #' @param n An integer defining the number of points to process at a time. Default is 2000
@@ -49,7 +49,7 @@
 #' }
 #'
 
-data_thin <- function(df,
+data_thin <- function(x,
                       cutoff = 1000,
                       fun = 'sum',
                       n = 2000) {
