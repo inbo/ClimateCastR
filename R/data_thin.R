@@ -244,7 +244,6 @@ data_thin <- function(x,
           if(nrow(data_thin_group) > 1){
             if(fun == "mean"){
               mean_n_obs <- mean(data_thin_group$n_obs, na.rm = TRUE)
-              mean_coordinateUncertaintyInMeters <-  mean(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
 
               year_cat <- year_cats[y]
               taxonkey <- taxonkeys[t]
@@ -255,7 +254,7 @@ data_thin <- function(x,
                   year_cat = year_cat,
                   acceptedTaxonKey = taxonkey,
                   n_obs = mean_n_obs,
-                  coordinateUncertaintyInMeters = mean_coordinateUncertaintyInMeters,
+                  coordinateUncertaintyInMeters = cutoff,
                   decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                   decimalLongitude = data_thin_group$mean_decimalLongitude[1],
                   group = g,
@@ -266,7 +265,6 @@ data_thin <- function(x,
             }
             if(fun == "median"){
               median_n_obs <- median(data_thin_group$n_obs, na.rm = TRUE)
-              median_coordinateUncertaintyInMeters <-  median(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
 
               year_cat <- year_cats[y]
               taxonkey <- taxonkeys[t]
@@ -276,7 +274,7 @@ data_thin <- function(x,
                 dplyr::add_row(year_cat = year_cat,
                                acceptedTaxonKey = taxonkey,
                                n_obs = median_n_obs,
-                               coordinateUncertaintyInMeters = median_coordinateUncertaintyInMeters,
+                               coordinateUncertaintyInMeters = cutoff,
                                decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                                decimalLongitude = data_thin_group$mean_decimalLongitude[1],
                                group = g,
@@ -287,7 +285,6 @@ data_thin <- function(x,
             }
             if(fun == "min"){
               min_n_obs <- min(data_thin_group$n_obs, na.rm = TRUE)
-              min_coordinateUncertaintyInMeters <-  min(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
 
               year_cat <- year_cats[y]
               taxonkey <- taxonkeys[t]
@@ -297,7 +294,7 @@ data_thin <- function(x,
                 dplyr::add_row(year_cat = year_cat,
                                acceptedTaxonKey = taxonkey,
                                n_obs = min_n_obs,
-                               coordinateUncertaintyInMeters = min_coordinateUncertaintyInMeters,
+                               coordinateUncertaintyInMeters = cutoff,
                                decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                                decimalLongitude = data_thin_group$mean_decimalLongitude[1],
                                group = g,
@@ -308,7 +305,6 @@ data_thin <- function(x,
             }
             if(fun == "max"){
               max_n_obs <- max(data_thin_group$n_obs, na.rm = TRUE)
-              max_coordinateUncertaintyInMeters <-  max(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
 
               year_cat <- year_cats[y]
               taxonkey <- taxonkeys[t]
@@ -318,7 +314,7 @@ data_thin <- function(x,
                 dplyr::add_row(year_cat = year_cat,
                                acceptedTaxonKey = taxonkey,
                                n_obs = max_n_obs,
-                               coordinateUncertaintyInMeters = max_coordinateUncertaintyInMeters,
+                               coordinateUncertaintyInMeters = cutoff,
                                decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                                decimalLongitude = data_thin_group$mean_decimalLongitude[1],
                                group = g,
@@ -329,7 +325,6 @@ data_thin <- function(x,
             }
             if(fun == "sum"){
               sum_n_obs <- sum(data_thin_group$n_obs, na.rm = TRUE)
-              sum_coordinateUncertaintyInMeters <-  sum(data_thin_group$coordinateUncertaintyInMeters, na.rm = TRUE)
 
               year_cat <- year_cats[y]
               taxonkey <- taxonkeys[t]
@@ -339,7 +334,7 @@ data_thin <- function(x,
                 dplyr::add_row(year_cat = year_cat,
                                acceptedTaxonKey = taxonkey,
                                n_obs = sum_n_obs,
-                               coordinateUncertaintyInMeters = sum_coordinateUncertaintyInMeters,
+                               coordinateUncertaintyInMeters = cutoff,
                                decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                                decimalLongitude = data_thin_group$mean_decimalLongitude[1],
                                group = g,
