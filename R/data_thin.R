@@ -363,9 +363,11 @@ data_thin <- function(x,
                                acceptedScientificName = data_thin_group$acceptedScientificName[1],
                                mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
                                mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
+            }
           }
         }
       }
+
 
 
 

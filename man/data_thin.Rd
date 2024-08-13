@@ -31,7 +31,7 @@ changed by setting the cutoff argument to a different value.
 
 The fun argument can be any function that takes a numeric vector as input and
 returns a single numeric value. The default is the sum function. Other options
-are median, min, max & mean.
+are median, min, max, n & mean.
 
 The n argument is used to split the data into chunks. This is useful when the
 data \emph{defined by a taxonkey and year_cat} has more than n points. The default is 2000.
