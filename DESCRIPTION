@@ -27,7 +27,8 @@ Imports:
     svDialogs,
     wk (>= 0.9.1),
     stringr (>= 1.5.1),
-    CoordinateCleaner (>= 3.0.1)
+    CoordinateCleaner (>= 3.0.1),
+    pbapply (>= 1.7.2)
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
