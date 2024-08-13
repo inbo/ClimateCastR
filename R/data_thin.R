@@ -17,7 +17,7 @@
 #'
 #' The fun argument can be any function that takes a numeric vector as input and
 #' returns a single numeric value. The default is the sum function. Other options
-#' are median, min, max & mean.
+#' are median, min, max, n & mean.
 #'
 #' The n argument is used to split the data into chunks. This is useful when the
 #' data *defined by a taxonkey and year_cat* has more than n points. The default is 2000.
@@ -84,8 +84,8 @@ data_thin <- function(x,
   }
 
   # Check if fun is a accepted function
-  if (!fun %in% c("mean", "median", "min", "max", "sum")) {
-    stop("The fun argument must be one of 'mean', 'median', 'min', 'max', or 'sum'")
+  if (!fun %in% c("mean", "median", "min", "max", "sum", "n")) {
+    stop("The fun argument must be one of 'mean', 'median', 'min', 'max', 'n' or 'sum'")
   }
 
   # get unique taxonkeys
@@ -344,6 +344,25 @@ data_thin <- function(x,
                                mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
 
             }
+            if(fun == "n"){
+              n_n_obs <- nrow(data_thin_group)
+
+              year_cat <- year_cats[y]
+              taxonkey <- taxonkeys[t]
+
+              data_thin <- data_thin %>%
+                dplyr::filter(group != g) %>%
+                dplyr::add_row(year_cat = year_cat,
+                               acceptedTaxonKey = taxonkey,
+                               n_obs = n_n_obs,
+                               coordinateUncertaintyInMeters = cutoff,
+                               decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               decimalLongitude = data_thin_group$mean_decimalLongitude[1],
+                               group = g,
+                               geometry = data_thin_group$geometry[1],
+                               acceptedScientificName = data_thin_group$acceptedScientificName[1],
+                               mean_decimalLatitude = data_thin_group$mean_decimalLatitude[1],
+                               mean_decimalLongitude = data_thin_group$mean_decimalLongitude[1])
           }
         }
       }
