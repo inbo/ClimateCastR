@@ -393,6 +393,13 @@ data_thin <- function(df,
       data_thin_all <- rbind(data_thin_all, data_thin_all_year)
     }
   }
+  # return data
+  # Convert the data frame to an sf object
+  data_thin_all <- sf::st_as_sf(data_thin_all,
+                                coords = c("decimalLongitude", "decimalLatitude"),
+                                crs = 4326,
+                                remove = FALSE)
+
   return(data_thin_all)
 }
 
