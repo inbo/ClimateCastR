@@ -28,7 +28,9 @@ Imports:
     wk (>= 0.9.1),
     stringr (>= 1.5.1),
     CoordinateCleaner (>= 3.0.1),
-    pbapply (>= 1.7.2)
+    pbapply (>= 1.7.2),
+    units (>= 0.8.5),
+    progress (>= 1.2.3)
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
