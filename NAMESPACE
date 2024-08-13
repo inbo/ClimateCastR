@@ -2,6 +2,7 @@
 
 export(climate_match)
 export(data_prep)
+export(data_stitch)
 export(get_cred)
 export(get_downloadkey_data)
 export(get_gbif_data)
