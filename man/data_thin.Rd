@@ -4,16 +4,16 @@
 \alias{data_thin}
 \title{Data thining function}
 \usage{
-data_thin(df, cutoff = 1000, fun = "sum", n = 2000)
+data_thin(x, cutoff = 1000, fun = "sum", n = 2000)
 }
 \arguments{
+\item{x}{A sf object resulting from previous steps in the ClimateCastR - flow}
+
 \item{cutoff}{A numeric value defining the distance cutoff for grouping points}
 
 \item{fun}{A function to apply to the grouped points. Default is 'sum'}
 
 \item{n}{An integer defining the number of points to process at a time. Default is 2000}
-
-\item{data}{A sf object resulting from previous steps in the ClimateCastR - flow}
 }
 \value{
 A sf object with the same columns as the input data, but with fewer rows
