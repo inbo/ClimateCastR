@@ -7,7 +7,7 @@
 #'
 #' @param data A sf object resulting from previous steps in the ClimateCastR - flow
 #' @param cutoff A numeric value defining the distance cutoff for grouping points
-#' @param fun A function to apply to the grouped points. Default is 'mean'
+#' @param fun A function to apply to the grouped points. Default is 'sum'
 #' @param n An integer defining the number of points to process at a time. Default is 2000
 #'
 #' @details
@@ -16,11 +16,11 @@
 #' changed by setting the cutoff argument to a different value.
 #'
 #' The fun argument can be any function that takes a numeric vector as input and
-#' returns a single numeric value. The default is the mean function. Other options
-#' are median, min, max & sum.
+#' returns a single numeric value. The default is the sum function. Other options
+#' are median, min, max & mean.
 #'
 #' The n argument is used to split the data into chunks. This is useful when the
-#' data defined by a taxonkey and year_cat has more than n points. The default is 2000.
+#' data *defined by a taxonkey and year_cat* has more than n points. The default is 2000.
 #' When the data has less than n points, the function will process all the data at once.
 #' Spatial groups are calculated within a chunk. The function will then merge the
 #' chunks and calculate the mean of the points in each group.
@@ -34,12 +34,24 @@
 #' # get data using get_data functions or as a result of the data_prep function.
 #' taxon_key <- c(2865504, 5274858)
 #' df<-get_gbif_data(taxon_key)
+#'
+#' # thin the data using default values
+#' df_thinned <- data_thin(df)
+#'
+#' # thin the data using a different cutoff value
+#' df_thinned <- data_thin(df, cutoff = 500)
+#'
+#' # thin the data using a different function
+#' df_thinned <- data_thin(df, fun = 'mean')
+#'
+#' # thin the data using a different n value
+#' df_thinned <- data_thin(df, n = 1000)
 #' }
 #'
 
 data_thin <- function(df,
                       cutoff = 1000,
-                      fun = 'mean',
+                      fun = 'sum',
                       n = 2000) {
   # Check if the input data is an sf object
   if (!inherits(df, "sf")) {
